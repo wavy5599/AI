@@ -31,3 +31,4 @@ OpenAI API (GPT-4o-mini model)
 HTML/CSS/JavaScript (for frontend integration)
 
 This project can be extended with additional AI capabilities, improved UI, or deployed to cloud platforms for broader accessibility.
+
