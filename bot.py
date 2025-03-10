@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize OpenAI client with your API key
-client = openai.OpenAI(api_key=os.getenv('The_Claw'))  # Ensure your .env file has OPENAI_API_KEY
+client = openai.OpenAI(api_key=os.getenv('key'))  
 
 # Function to interact with GPT-4o
 def chat_with_gpt(prompt):
@@ -33,3 +33,6 @@ if __name__ == "__main__":
         
         response = chat_with_gpt(user_input)
         print("\nGPT 4o: ", response)
+
+
+
