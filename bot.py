@@ -33,6 +33,3 @@ if __name__ == "__main__":
         
         response = chat_with_gpt(user_input)
         print("\nGPT 4o: ", response)
-
-
-
