@@ -1,4 +1,9 @@
 # Wavy'sBot 🌊🤖
+Warning: You cannot access the chat bot unless you have the administrator password and server access 
+
+
+This code is licensed under David Morris intellectual property
+
 
 **Wavy’sBot** is a secure, full-stack AI chatbot powered by OpenAI’s GPT-4o model. It runs on a Flask backend and connects to a clean, responsive front-end interface where users can chat in real time — but only after passing a password gate. Password protection is securely handled through backend validation and stored privately using environment variables.
 
@@ -7,7 +12,7 @@
 ## 🔐 Features
 
 - 🔒 Front-end password protection (user must unlock to chat)
-- 🔐 Password securely stored in `.env`, never exposed to GitHub
+- 🔐 Password and API securely stored in `.env`, never exposed to GitHub
 - 🤖 AI responses from OpenAI’s GPT-4o
 - 💬 Real-time frontend chat UI built in HTML/CSS/JS
 - 🌐 CORS-enabled Flask server for clean frontend-backend communication
