@@ -1,34 +1,18 @@
-Flask OpenAI Chatbot
+# Wavy'sBot 🌊🤖
 
-This project is a Flask-based chatbot that integrates OpenAI's GPT model to provide real-time conversational responses. It utilizes Flask-SocketIO for handling WebSocket communication, allowing users to interact with the chatbot dynamically.
+Wavy'sBot is a full-stack AI chatbot powered by OpenAI's GPT-4o model. It runs on a Flask backend and connects to a clean, custom front-end interface for real-time interaction. Users can chat with the bot directly from their browser, and responses are generated using OpenAI’s powerful language model.
 
-Features
+---
 
-Real-time chat functionality using WebSockets.
+## 🚀 Features
 
-Integration with OpenAI's GPT-4o-mini model for intelligent responses.
+- 🌐 Flask-powered backend server
+- 🤖 AI responses via OpenAI's GPT-4o model
+- 💬 Front-end chat interface (HTML/CSS/JS)
+- 🔁 Live chat display for both user and bot messages
+- 🔒 CORS support for local frontend/backend communication
 
-Flask-based backend to manage API requests.
+---
 
-Socket.IO support for bidirectional communication between the server and client.
-
-How It Works
-
-The Flask application serves the front-end interface.
-
-Users send messages, which are processed by OpenAI's API.
-
-The chatbot responds based on GPT-generated replies.
-
-WebSockets enable instant message exchange between client and server.
-
-Technologies Used
-
-Python (Flask, Flask-SocketIO)
-
-OpenAI API (GPT-4o-mini model)
-
-HTML/CSS/JavaScript (for frontend integration)
-
-This project can be extended with additional AI capabilities, improved UI, or deployed to cloud platforms for broader accessibility.
+## 📂 Project Structure
 
