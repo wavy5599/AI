@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Chatbot</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: rgb(130, 173, 236); padding: 20px; }
+    .chat-box { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
+    .messages { margin-bottom: 20px; }
+    .message { padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+    .user { background: #007bff; color: white; text-align: right; }
+    .bot { background: #e9ecef; color: black; text-align: left; }
+    input, button { padding: 10px; font-size: 16px; }
+    input { width: 80%; }
+    button { width: 18%; }
+  </style>
+</head>
+<body>
+  <div class="chat-box">
+    <div class="messages" id="chatLog"></div>
+    <input type="text" id="userInput" placeholder="Type your message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById('userInput');
+      const chatLog = document.getElementById('chatLog');
+      const userMessage = input.value;
+
+      if (!userMessage.trim()) return;
+
+      // Append user message
+      const userDiv = document.createElement('div');
+      userDiv.className = 'message user';
+      userDiv.innerText = userMessage;
+      chatLog.appendChild(userDiv);
+
+      // Send message to Flask server
+      try {
+        const response = await fetch('http://127.0.0.1:5000/chat', {
+
+
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ message: userMessage })
+        });
+
+        const data = await response.json();
+        const botReply = data.reply || "Error: " + data.error;
+
+        // Append bot reply
+        const botDiv = document.createElement('div');
+        botDiv.className = 'message bot';
+        botDiv.innerText = botReply;
+        chatLog.appendChild(botDiv);
+
+        input.value = '';
+        chatLog.scrollTop = chatLog.scrollHeight;
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    // Allow "Enter" key to send message
+    document.getElementById("userInput").addEventListener("keyup", function (event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>

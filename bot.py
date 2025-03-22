@@ -1,35 +1,41 @@
 import openai
 import os
 from dotenv import load_dotenv
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
 
-# Initialize OpenAI client with your API key
-client = openai.OpenAI(api_key=os.getenv('key'))  
+# Initialize Flask app and CORS
+app = Flask(__name__)
+CORS(app)  # ✅ Enable CORS for all routes
 
-# Function to interact with GPT-4o
-def chat_with_gpt(prompt):
+# Set OpenAI API Key
+openai.api_key = os.getenv('key')
+
+@app.route('/')
+def home():
+    return "Flask server with AI Chatbot is running!"
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    data = request.get_json()
+    user_message = data.get("message")
+
+    if not user_message:
+        return jsonify({"error": "Message is required"}), 400
+
     try:
-        response = client.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}]
+            messages=[{"role": "user", "content": user_message}]
         )
-        if response.choices and len(response.choices) > 0:
-            return response.choices[0].message.content.strip()
-        else:
-            return "Error: No response from GPT-4o."
-    except Exception as e:
-        return f"Error: {str(e)}"
+        bot_reply = response["choices"][0]["message"]["content"]
+        return jsonify({"reply": bot_reply})
 
-if __name__ == "__main__":
-    print("Chat with GPT-4o! Type 'quit', 'exit', or 'bye' to stop.")
-    
-    while True:
-        user_input = input("\nYou: ")
-        if user_input.lower() in ["quit", "exit", "bye"]:
-            print("Goodbye!")
-            break
-        
-        response = chat_with_gpt(user_input)
-        print("\nGPT 4o: ", response)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
