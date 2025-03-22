@@ -13,10 +13,20 @@ CORS(app)  # ✅ Enable CORS for all routes
 
 # Set OpenAI API Key
 openai.api_key = os.getenv('key')
+FRONTEND_PASSWORD = os.getenv('FRONTEND_PASSWORD')  # For client auth
 
 @app.route('/')
 def home():
     return "Flask server with AI Chatbot is running!"
+
+@app.route('/validate-password', methods=['POST'])
+def validate_password():
+    data = request.get_json()
+    submitted_password = data.get('password')
+    if submitted_password == FRONTEND_PASSWORD:
+        return jsonify({"success": True})
+    else:
+        return jsonify({"success": False}), 403
 
 @app.route('/chat', methods=['POST'])
 def chat():
