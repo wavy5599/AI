@@ -1,66 +1,82 @@
-# 📦 Import required libraries
-import openai                   # For interacting with the OpenAI API
-import os                       # To work with environment variables like your API key
-from dotenv import load_dotenv # To load environment variables from a .env file
-from flask import Flask, request, jsonify  # Flask for the web server
-from flask_cors import CORS    # CORS to allow frontend apps to connect to this backend
+import openai
+import os
+import re
+from dotenv import load_dotenv
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
-#  Load environment variables from the .env file (API key, frontend password, etc.)
+# 🌱 Load environment variables
 load_dotenv()
 
-#  Initialize the Flask app
+# 🚀 Initialize Flask app
 app = Flask(__name__)
-
-#  Enable Cross-Origin Resource Sharing (CORS) so your frontend can call this API from a different domain
 CORS(app)
 
-#  Get the OpenAI API key and frontend password from environment variables
+# 🔐 API Keys
 openai.api_key = os.getenv('key')
 FRONTEND_PASSWORD = os.getenv('FRONTEND_PASSWORD')
 guest_key = os.getenv('guest_key')
 
-#  Route: Root endpoint to confirm server is running
+# 🧠 In-memory session state
+user_memory = {
+    "name": None,
+    "bot_name": "Wavy's Bot"
+}
+conversation_history = []
+
+# ✅ Home route
 @app.route('/')
 def home():
-    return "Flask server with AI Chatbot is running!"  # Simple response for testing
+    return "Flask server with AI Chatbot is running!"
 
-#  Route: Validate frontend password to make sure only approved users can access
+# 🔑 Password validation
 @app.route('/validate-password', methods=['POST'])
 def validate_password():
-    data = request.get_json()  # Get JSON payload from frontend
-    submitted_password = data.get('password')  # Extract submitted password
-    if submitted_password == FRONTEND_PASSWORD:  # Compare with the correct one
-        return jsonify({"success": True})        # Password is correct
-    else:
-        return jsonify({"success": False}), 403  # Wrong password, return error
+    data = request.get_json()
+    if data.get('password') == FRONTEND_PASSWORD:
+        return jsonify(success=True)
+    return jsonify(success=False), 403
 
-#  Route: Handle chat requests from the frontend
+# 🤖 Chat route
 @app.route('/chat', methods=['POST'])
 def chat():
-    data = request.get_json()             # Get JSON payload from frontend
-    user_message = data.get("message")    # Extract the message sent by the user
+    data = request.get_json()
+    user_message = data.get("message", "").strip()
 
-    #  Error handling: If there's no message in the request
     if not user_message:
-        return jsonify({"error": "Message is required"}), 400
+        return jsonify(error="Message is required"), 400
+
+    # 🔍 Detect and save user name if not known
+    if user_memory["name"] is None:
+        match = re.search(r"(?:my name is|i am|i'm)\s+(\w+)", user_message, re.IGNORECASE)
+        if match:
+            user_memory["name"] = match.group(1).capitalize()
+
+    # 🧠 System prompt
+    system_prompt = (
+        f"You are {user_memory['bot_name']}, a helpful, chill, and clever AI assistant who sounds like a real person.\n"
+        f"{'The user’s name is ' + user_memory['name'] + '.' if user_memory['name'] else ''}\n"
+        "Use friendly tone, ask questions back sometimes, and be supportive. Don't sound robotic."
+    )
+
+    # 🗃️ Maintain session memory
+    conversation_history.append({"role": "user", "content": user_message})
+    if len(conversation_history) > 20:
+        conversation_history.pop(0)  # Limit memory size
 
     try:
-        #  Call OpenAI's ChatCompletion API with GPT-4o model
         response = openai.ChatCompletion.create(
-            model="gpt-4o",  # GPT-4o (Omni model)
-            messages=[{"role": "user", "content": user_message}]
+            model="gpt-4o",
+            messages=[{"role": "system", "content": system_prompt}] + conversation_history
         )
 
-        #  Extract AI's reply from the response
-        bot_reply = response["choices"][0]["message"]["content"]
-
-        #  Send AI's reply back to the frontend
-        return jsonify({"reply": bot_reply})
+        reply = response["choices"][0]["message"]["content"]
+        conversation_history.append({"role": "assistant", "content": reply})
+        return jsonify(reply=reply)
 
     except Exception as e:
-        #  If something goes wrong (like API error), return the error message
-        return jsonify({"error": str(e)}), 500
+        return jsonify(error=str(e)), 500
 
-#  Start the Flask server when this script is run directly
+# 🔥 Run server
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)  # Run on port 5000, open to all network interfaces
+    app.run(debug=True, host='0.0.0.0', port=5000)
