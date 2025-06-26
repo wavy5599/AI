@@ -122,20 +122,31 @@ button:hover,
   100% { opacity: 0.2; transform: translateY(0); }
 }
 
+/* 📱 iPhone & small screen tweaks */
 @media (max-width: 480px) {
+  body {
+    padding: 4vw;
+    font-size: 0.95rem;
+  }
+
   .chat-box {
     padding: 6vw;
+    border-radius: 16px;
   }
 
   .message {
     font-size: 0.95rem;
+    max-width: 90%;
   }
 
-  #userInput {
+  #userInput,
+  #accessPassword {
     font-size: 1rem;
   }
 
   button {
     font-size: 1rem;
+    padding: 14px;
   }
 }
+
