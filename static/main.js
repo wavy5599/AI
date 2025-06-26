@@ -1,7 +1,8 @@
-const SERVER_URL = "http://192.168.1.206:5000"; // Your backend
+// 🌐 Flask backend API base URL
+const SERVER_URL = "http://192.168.1.206:5000";
 let username = "";
 
-// 🔗 Get elements
+// 🔗 DOM elements
 const micButton = document.getElementById("micButton");
 const userInput = document.getElementById("userInput");
 const sendButton = document.getElementById("sendButton");
@@ -12,7 +13,7 @@ const chatLog = document.getElementById("chatLog");
 sendButton.addEventListener("click", sendMessage);
 unlockButton.addEventListener("click", unlockChat);
 
-// ✅ Append messages
+// ✅ Append message to chat log
 function appendMessage(sender, text) {
   const message = document.createElement("div");
   message.className = `message ${sender === "user" ? "user" : "bot"}`;
@@ -21,6 +22,7 @@ function appendMessage(sender, text) {
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
+// 🔄 Typing indicator (bot is thinking)
 function appendTyping() {
   const typing = document.createElement("div");
   typing.className = "message bot";
@@ -35,7 +37,7 @@ function removeTyping() {
   if (typing) typing.remove();
 }
 
-// 🔐 Unlock chat
+// 🔐 Validate password and unlock chat
 async function unlockChat() {
   const password = document.getElementById("accessPassword").value;
   const authBox = document.getElementById("authBox");
@@ -47,6 +49,7 @@ async function unlockChat() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password })
     });
+
     const data = await res.json();
 
     if (data.success) {
@@ -57,11 +60,12 @@ async function unlockChat() {
       alert("Incorrect password. Try again.");
     }
   } catch (err) {
+    console.error("Password validation error:", err);
     alert("Server error. Try again later.");
   }
 }
 
-// 📤 Send user message
+// 📤 Send user message to backend
 async function sendMessage() {
   const message = userInput.value.trim();
   if (!message) return;
@@ -69,6 +73,7 @@ async function sendMessage() {
   appendMessage("user", message);
   userInput.value = "";
 
+  // Store the first message as username
   if (!username) {
     username = message;
     appendMessage("bot", `Nice to meet you, ${username}. How can I help you today?`);
@@ -83,16 +88,18 @@ async function sendMessage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message })
     });
+
     const data = await res.json();
     removeTyping();
     appendMessage("bot", data.reply);
   } catch (err) {
     removeTyping();
+    console.error("Chat error:", err);
     appendMessage("bot", "Oops! Something went wrong.");
   }
 }
 
-// 🎤 Mic Integration (Fills input box with spoken text)
+// 🎤 Voice input (speech recognition)
 let isListening = false;
 let recognition;
 
@@ -100,7 +107,7 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SpeechRecognition();
 
-  recognition.continuous = true; // 🔥 Keep listening
+  recognition.continuous = true;
   recognition.interimResults = false;
   recognition.lang = 'en-US';
 
@@ -129,15 +136,9 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
   };
 
   recognition.onend = () => {
-    if (isListening) {
-      recognition.start(); // 🔁 Auto-restart if accidentally ended
-    }
+    if (isListening) recognition.start(); // Auto-restart
   };
 } else {
   micButton.disabled = true;
   micButton.title = "Speech recognition not supported in this browser";
 }
-
-//games 
-
-
