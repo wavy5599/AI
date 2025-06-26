@@ -7,9 +7,9 @@
   </head>
   <body>
     <div id="authBox">
-      <input type="password" id="accessPassword" placeholder="Enter password to unlock chat" />
+      <input type="password" id="accessPassword" placeholder="Enter password" />
       <br />
-      <button id="unlockButton">Unlock</button>
+      <button class="unlock" id="unlockButton">Unlock</button>
     </div>
 
     <div id="chatBox" style="display: none;">
@@ -19,6 +19,10 @@
         <input type="text" id="userInput" placeholder="Type your message..." />
         <button id="micButton">🎤</button>
         <button id="sendButton">Send</button>
+
+        <div class="board" id="board"></div>
+
+    
       </div>
     </div>
 
