@@ -4,6 +4,8 @@ import openai
 import os
 from dotenv import load_dotenv
 import re
+import requests
+from bs4 import BeautifulSoup
 
 # Load environment vars
 load_dotenv()
@@ -75,3 +77,66 @@ def chat():
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)
+
+
+def web_scrape(url, tag='table', match_text=None):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        elements = soup.find_all(tag)
+        if match_text:
+            filtered = [el for el in elements if match_text.lower() in el.text.lower()]
+            return filtered if filtered else None
+        return elements
+    except Exception as e:
+        return f"Error during scraping: {e}"
+
+def parse_user_intent(user_input):
+    prompt = f"""
+    You are a helpful assistant that extracts user intent and key info.
+    Analyze this user input and answer in JSON:
+    {{
+      "intent": "search" or "chat",
+      "url": "<URL if applicable>",
+      "keywords": "<keywords to search or scrape>"
+    }}
+
+    User input: \"{user_input}\"
+    """
+    response = openai.Completion.create(
+        engine="text-davinci-003",
+        prompt=prompt,
+        max_tokens=60,
+        temperature=0,
+        stop=["\n"]
+    )
+    try:
+        intent_data = eval(response.choices[0].text.strip())
+        return intent_data
+    except Exception as e:
+        return {"intent": "chat"}
+
+def ai_bot_response(user_input):
+    intent_data = parse_user_intent(user_input)
+    
+    if intent_data.get("intent") == "search":
+        url = intent_data.get("url")
+        keywords = intent_data.get("keywords")
+        
+        if url:
+            results = web_scrape(url, tag='table', match_text=keywords)
+            if results:
+                return f"Found {len(results)} results matching '{keywords}':\n" + \
+                       "\n---\n".join([r.text[:300] for r in results])
+            else:
+                return "No matching data found on the page."
+        else:
+            return "Sorry, I couldn't identify the URL"
+    else:
+        # Normal chat fallback
+        return "How else can I assist you today?"
+
+# Example
+user_msg = "Can you get me the latest Tesla revenue table?"
+print(ai_bot_response(user_msg))
