@@ -36,13 +36,21 @@ def serve_static(filename):
 @app.errorhandler(404)
 def not_found(e):
     return send_from_directory(app.static_folder, "index.html")
-# Password validation
-@app.route('/validate-password', methods=['POST'])
+
+
+@app.route("/validate-password", methods=["POST"])
 def validate_password():
-    data = request.get_json()
-    if data.get('password') == FRONTEND_PASSWORD:
+    data = request.get_json(silent=True) or {}
+
+    password = data.get("password", "")
+    if not FRONTEND_PASSWORD:
+        return jsonify(error="FRONTEND_PASSWORD is not set on the server"), 500
+
+    if password == FRONTEND_PASSWORD:
         return jsonify(success=True)
+
     return jsonify(success=False), 403
+
 
 # Chat handler
 @app.route('/chat', methods=['POST'])
