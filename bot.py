@@ -23,15 +23,19 @@ user_memory = {"name": None, "bot_name": "Wavy's Bot"}
 conversation_history = []
 
 # Serve index.html at /
-@app.route('/')
+@app.route("/")
 def serve_frontend():
-    return send_from_directory(app.static_folder, 'index.html')
+    return send_from_directory(app.static_folder, "index.html")
 
-# Serve other static assets
-@app.route('/<path:path>')
-def serve_static_files(path):
-    return send_from_directory(app.static_folder, path)
+# Serve static files (js/css/images) from /static/*
+@app.route("/static/<path:filename>")
+def serve_static(filename):
+    return send_from_directory(app.static_folder, filename)
 
+# Optional SPA fallback: any unknown route returns index.html
+@app.errorhandler(404)
+def not_found(e):
+    return send_from_directory(app.static_folder, "index.html")
 # Password validation
 @app.route('/validate-password', methods=['POST'])
 def validate_password():

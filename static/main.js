@@ -1,5 +1,6 @@
 // 🌐 Flask backend API base URL
-const SERVER_URL = "http://192.168.1.206:5000";
+const SERVER_URL = window.location.origin;
+
 let username = "";
 
 // 🔗 DOM elements
